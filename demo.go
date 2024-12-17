@@ -67,6 +67,7 @@ func concatFloats(separator string, source chan float64) string {
 	return builder.String()
 }
 
+// Informal tests to check behavior of GoLinq methods
 func main() {
 	ints := []int{1, 2, 3, 6, 4, 1, 9, 5, 8}
 
