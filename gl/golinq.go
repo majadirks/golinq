@@ -80,7 +80,7 @@ func Take[T any](source chan T, count int) chan T {
 	return output
 }
 
-// Ignores the first n = count vales from a channel
+// Ignores the first n = count values from a channel
 // and sends the rest (if any) on a new channel.
 func Skip[T any](source chan T, count int) chan T {
 	output := make(chan T)
