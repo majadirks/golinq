@@ -77,6 +77,10 @@ func main() {
 	isEven := func(i int) bool { return i%2 == 0 }
 	square := func(i int) int { return i * i }
 
+	fmt.Println("Squares of ints: ")
+	squares := gl.Map(gl.From(ints), square)
+	fmt.Println(concatInts(", ", squares)) // prints "1, 4, 9, 36, 16, 1, 81, 25, 64"
+
 	fmt.Println("Even squares of given ints:")
 	squaresOfEvens := concatInts(", ", gl.Filter(gl.Map(gl.From(ints), square), isEven))
 	fmt.Println(squaresOfEvens) // prints "4, 36, 16, 64"
