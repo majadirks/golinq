@@ -1,5 +1,4 @@
-// Currently using main package; still need to learn how to create other packages
-package main
+package gl
 
 import (
 	"cmp"
@@ -123,8 +122,8 @@ func First[T any](source chan T) T {
 	return first
 }
 
-// Returns the last element received on the given channel
-func last[T any](source chan T) T {
+// Returns the Last element received on the given channel
+func Last[T any](source chan T) T {
 	var last T
 	for s := range source {
 		last = s
@@ -158,7 +157,6 @@ func countOrTimeOut[T any](source chan T, timeoutSec int) int {
 	case <-ctx.Done():
 		return -1 // timed out
 	}
-
 }
 
 // Given a channel of numeric values, return their Sum
@@ -269,7 +267,7 @@ func main() {
 	fmt.Println(first) // prints "1"
 
 	fmt.Println("Last int:")
-	last := last(From(ints))
+	last := Last(From(ints))
 	fmt.Println(last) // prints "8"
 
 	fmt.Println("Count of ints:")
