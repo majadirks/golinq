@@ -44,6 +44,8 @@ The methods included are:
   first10Fibs := gl.Take(gl.Fibonaccis(), 10)
 	fmt.Println(concatInts(", ", first10Fibs)) // prints "1, 1, 2, 3, 5, 8, 13, 21, 34, 55"
   ```
+- `Zip`, which applies a given functions to elements from the two channels until one of the channels is closed, as in the example at the top of this README.
+
 - `Fibonaccis()`, which creates a channel on which all Fibonacci numbers are (lazily) sent
 - The aggregation methods `First`, `Last`, `Max`, `Count`, and `Sum`, which do exactly what one would expect.
 
