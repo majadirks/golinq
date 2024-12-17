@@ -34,8 +34,14 @@ The methods included are:
 	squaresOfEvens := concatInts(", ", gl.Filter(gl.Map(gl.From(ints), square), isEven))
 	fmt.Println(squaresOfEvens) // prints "4, 36, 16, 64"
   ```
-- `Take`, which receives the first n = count values from a channel and sends them on a new channel, as in:
+- `Take`, which receives the first n values from a channel and sends them on a new channel, as in:
   ```
 	sum3 := gl.Sum(gl.Take(gl.From(ints), 3))
 	fmt.Println(sum3) // prints "6"
   ```
+- `Skip`, which ignores the first n values from a channel and sends the rest (if any) on a new channel, as in:
+  ```
+  first10Fibs := gl.Take(gl.Fibonaccis(), 10)
+	fmt.Println(concatInts(", ", first10Fibs)) // prints "1, 1, 2, 3, 5, 8, 13, 21, 34, 55"
+  ```
+- The aggregation methods `First`, `Last`, `Max`, `Count`, and `Sum`, which do exactly what one would expect.
