@@ -45,3 +45,6 @@ The methods included are:
 	fmt.Println(concatInts(", ", first10Fibs)) // prints "1, 1, 2, 3, 5, 8, 13, 21, 34, 55"
   ```
 - The aggregation methods `First`, `Last`, `Max`, `Count`, and `Sum`, which do exactly what one would expect.
+
+# Demo
+One may see this code in action by running `go run demo.go` in the appropriate directory.
