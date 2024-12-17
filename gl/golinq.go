@@ -2,10 +2,6 @@ package gl
 
 import (
 	"cmp"
-	"context"
-	"fmt"
-	"strings"
-	"time"
 )
 
 // For each element in a channel, apply the given map function
@@ -144,21 +140,6 @@ func Count[T any](source chan T) int {
 	}
 }
 
-// Listens on a channel until the channel is closed or a timeout threshold is reached
-// and return the number of elements received, or -1 if timed out.
-func countOrTimeOut[T any](source chan T, timeoutSec int) int {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSec)*time.Second)
-	defer cancel()
-	ch := make(chan int)
-	go func() { ch <- Count(source) }()
-	select {
-	case res := <-ch:
-		return res // counted successfully
-	case <-ctx.Done():
-		return -1 // timed out
-	}
-}
-
 // Given a channel of numeric values, return their Sum
 func Sum[T float32 | float64 | int | int32 | int64](source chan T) T {
 	var ret T
@@ -199,125 +180,4 @@ func Fibonaccis() chan int {
 		}
 	}()
 	return output
-}
-
-// Given a channel of integers,
-// return a string holding those integers, separated
-// by the given separator
-func concatInts(separator string, source chan int) string {
-	if source == nil {
-		return ""
-	}
-	var builder strings.Builder
-	first := true
-	for elem := range source {
-		if !first {
-			builder.WriteString(separator)
-		}
-
-		str := fmt.Sprintf("%d", elem)
-		builder.WriteString(str)
-
-		first = false
-	}
-	return builder.String()
-}
-
-// Given a channel of float64s,
-// return a string holding those float64s, separated
-// by the given separator
-func concatFloats(separator string, source chan float64) string {
-	if source == nil {
-		return ""
-	}
-	var builder strings.Builder
-	first := true
-	for elem := range source {
-		if !first {
-			builder.WriteString(separator)
-		}
-
-		str := fmt.Sprintf("%.6f", elem)
-		builder.WriteString(str)
-
-		first = false
-	}
-	return builder.String()
-}
-
-func main() {
-	ints := []int{1, 2, 3, 6, 4, 1, 9, 5, 8}
-
-	fmt.Println("Given ints:")
-	fmt.Println(concatInts(", ", From(ints))) // prints "1, 2, 3, 6, 4, 1, 9, 5, 8"
-
-	isEven := func(i int) bool { return i%2 == 0 }
-	square := func(i int) int { return i * i }
-
-	fmt.Println("Even squares of given ints:")
-	squaresOfEvens := concatInts(", ", Filter(Map(From(ints), square), isEven))
-	fmt.Println(squaresOfEvens) // prints "4, 36, 16, 64"
-
-	fmt.Println("Max of given ints:")
-	max := Max(From(ints))
-	fmt.Println(max) // prints "9"
-
-	fmt.Println("First int:")
-	first := First(From(ints))
-	fmt.Println(first) // prints "1"
-
-	fmt.Println("Last int:")
-	last := Last(From(ints))
-	fmt.Println(last) // prints "8"
-
-	fmt.Println("Count of ints:")
-	count := Count(From(ints))
-	fmt.Println(count) // prints "9"
-
-	fmt.Println("Sum of ints:")
-	sum := Sum(From(ints))
-	fmt.Println(sum) // prints "39"
-
-	fmt.Println("Sum of first three ints:")
-	sum3 := Sum(Take(From(ints), 3))
-	fmt.Println(sum3) // prints "6"
-
-	fmt.Println("Sum of final two ints:")
-	sumFinal2 := Sum(Skip(From(ints), count-2))
-	fmt.Println(sumFinal2) // prints "13"
-
-	fmt.Println("First ten Fibonacci numbers")
-	first10Fibs := Take(Fibonaccis(), 10)
-	fmt.Println(concatInts(", ", first10Fibs)) // prints "1, 1, 2, 3, 5, 8, 13, 21, 34, 55"
-
-	firstFibAfterFour := First(Skip(Fibonaccis(), 4))
-	fmt.Printf("First ten Fibonacci numbers, ignoring the first four, ie starting with %d:\n", firstFibAfterFour) // "ie starting with 5"
-	first10FibsIgnoreFirstFour := Take(Skip(Fibonaccis(), 4), 10)
-	fmt.Println(concatInts(", ", first10FibsIgnoreFirstFour)) // prints "5, 8, 13, 21, 34, 55, 89, 144, 233, 377"
-
-	fmt.Println("Squares of first ten Fibonacci numbers")
-	squareFirst10Fibs := Take(Map(Fibonaccis(), square), 10) // Note: mapping before taking. Can we call map on an unending stream of data?
-	fmt.Println(concatInts(", ", squareFirst10Fibs))         // Indeed we can; this line prints "1, 1, 4, 9, 25, 64, 169, 441, 1156, 3025"
-
-	fmt.Println("Total number of Fibonacci numbers:")
-	fibCount := countOrTimeOut(Fibonaccis(), 1)
-	if fibCount >= 0 {
-		fmt.Println(fibCount)
-	} else {
-		fmt.Println("Timed out, obviously") // Times out, obviously
-	}
-
-	fmt.Println("Multiply each integer in the test set by the subsequent integer:")
-	product := func(a int, b int) int { return a * b }
-	offsetProducts := Zip(From(ints), Skip(From(ints), 1), product)
-	fmt.Println(concatInts(", ", offsetProducts)) // prints "2, 6, 18, 24, 4, 9, 45, 40"
-
-	fmt.Println("Successive ratios of the five Fibonacci numbers after skipping the first five:")
-	ratio := func(a int, b int) float64 { return float64(b) / float64(a) }
-	fibs := Fibonaccis()
-	fibs2 := Skip(Fibonaccis(), 1)
-	phiApproximations := Take(Skip(Zip(fibs, fibs2, ratio), 5), 5)
-	fmt.Println(concatFloats(", ", phiApproximations)) // prints "1.625000, 1.615385, 1.619048, 1.617647, 1.618182"
-	close(fibs)
-	close(fibs2)
 }
